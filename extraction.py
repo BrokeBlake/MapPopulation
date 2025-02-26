@@ -2,6 +2,8 @@ import rasterio
 import numpy as np
 import geopandas as gpd
 from shapely.geometry import Point
+from rasterio.transform import from_origin
+from rasterio.enums import Resampling
 
 
 class ExtractTif():
@@ -10,15 +12,16 @@ class ExtractTif():
 
     """
     def __init__(self,
-                 input_path = r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\GHS_POP_E2025_GLOBE_R2023A_4326_3ss_V1_0.tif",
-                 output_path = r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\population_density.parquet",
-                 lat_middle = -37.85,
-                 lon_middle = 145,
-                 zoom_level = 11,
-                 width_px = 1350,
-                 height_px = 1000,
+                 input_path = r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\Melbourne-Canberra\GHS_2025_pop_density_145_-35_melbourne_canberra.tif",
+                 output_path = r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\Melbourne-Canberra\melbourne_population_density.parquet",
+                 lat_middle = -37.8136,
+                 lon_middle = 144.9631,
+                 zoom_level = 10,
+                 width_px = 850,
+                 height_px = 625,
                  geo_mask = True):
         
+        print("Starting Extraction...")
         self.tif_path = input_path
         self.output_gdf_path = output_path
 
@@ -84,22 +87,80 @@ class ExtractTif():
         nonzero_mask = pop_density > 0 # Remove zero-population cells
         lon, lat, pop_density, area = lon[nonzero_mask], lat[nonzero_mask], pop_density[nonzero_mask], area[nonzero_mask]
 
-        print(F"Converting into Parquet file...")
+        print(f"Converting into Parquet file...")
         self.gdf = gpd.GeoDataFrame(
-            {"longitude": lon, "latitude": lat, "population": pop_density, "area": area},
+            {"longitude": lon, "latitude": lat, "population": pop_density},
             geometry=[Point(x, y) for x, y in zip(lon, lat)],
             crs="EPSG:4326"  # WGS 84 Coordinate Reference System
         )
 
-        self.pop_density = pop_density
-
-
     def save_to_file(self):
 
         self.gdf.to_parquet(self.output_gdf_path)
-
         print(f"GeoDataFrame saved as '{self.output_gdf_path}'")
+    """
+    def create_heatmap_tif(self):
 
+        print("Generating Heatmap")
 
+        res_x = abs(self.lon_max - self.lon_min) / self.cols
+        res_y = abs(self.lat_max - self.lat_min) / self.rows
+
+        heatmap_array = np.zeros((self.rows, self.cols), dtype=np.float32)
+
+        for i in range(len(self.gdf)):
+            row, col = ~self.transform * (self.gdf.iloc[i].longitude, self.gdf.iloc[i].latitude)
+            row, col = int(row), int(col)
+            if 0 <= row < self.rows and 0 <= col < self.cols: #If inside the given box - just in case use mistake
+                heatmap_array[row, col] += self.gdf.iloc[i].population  # Aggregate population
+
+        transform = from_origin(self.lon_min, self.lat_max, res_x, res_y)
+        new_meta = {
+            "driver": "GTiff",      "dtype": "float32",         "nodata": 0,
+            "width": self.cols,     "height": self.rows,        "count": 1,
+            "crs": "EPSG:4326",     "transform": transform,
+        }
+
+        with rasterio.open(self.output_heatmap_path, "w", **new_meta) as dst:
+            dst.write(heatmap_array, 1)
+
+        print(f"Heatmap GeoTIFF saved at {self.output_heatmap_path}")
+    """
 if __name__ == "__main__":
-    ExtractTif(lat_middle = -33.8688, lon_middle = 151.2093, output_path = r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\sydney_population_density.parquet")
+    cities = {
+        "Melbourne": {
+            "lat_middle": -37.8136,
+            "lon_middle": 144.9631,
+            "width_px": 850,
+            "height_px": 625,
+            "input_path": r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\Melbourne-Canberra\GHS_2025_pop_density_145_-35_melbourne_canberra.tif",
+            "output_path": r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\Melbourne-Canberra\melbourne_full_population_density.parquet",
+            "geo_mask": False
+        },
+        "Brisbane": {
+            "lat_middle": -27.4705,
+            "lon_middle": 153.0260,
+            "width_px": 850,
+            "height_px": 625,
+            "input_path": r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\Brisbane-GoldCoast\GHS_2025_pop_density_155_-25_brisbane.tif",
+            "output_path": r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\Brisbane-GoldCoast\brisbane_population_density.parquet"
+        },
+        "Sydney": {
+            "lat_middle": -33.8688,
+            "lon_middle": 151.1093,
+            "width_px": 850,
+            "height_px": 625,
+            "input_path": r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\Sydney\GHS_2025_pop_density_155_-35_sydney.tif",
+            "output_path": r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\Sydney\sydney_population_density.parquet"
+        },
+        "Perth": {
+            "lat_middle": -31.9514,
+            "lon_middle": 115.9617,
+            "width_px": 850,
+            "height_px": 625,
+            "input_path": r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\Perth\GHS_2025_pop_density_115_-35_perth.tif",
+            "output_path": r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\Perth\perth_population_density.parquet"
+        }
+    }
+
+    ExtractTif(**cities["Melbourne"])

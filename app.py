@@ -4,10 +4,11 @@ import folium
 import geopandas as gpd
 import itertools
 import json
-import random
+
 from folium.plugins import Draw
 from streamlit_folium import st_folium
 from shapely.geometry import Point, Polygon
+from folium.plugins import HeatMap
 
 
 
@@ -17,28 +18,28 @@ class PopulationMapApp:
     
     """
     def __init__(self,
-                 lat_middle = -37.85,
-                 lon_middle = 145,
-                 zoom_level = 11,
-                 width_px = 1350,
-                 height_px = 1000):
+                 lat_middle = -37.8136,
+                 lon_middle = 144.9631,
+                 zoom_level = 10,
+                 width_px = 850,
+                 height_px = 625,
+                 input_file = r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\Melbourne-Canberra\melbourne_population_density.parquet"):
         
+        self.input_file = input_file
         self.lat_middle = lat_middle
         self.lon_middle = lon_middle
         self.zoom_level = zoom_level
         self.width_px = width_px
         self.height_px = height_px
 
-        st.set_page_config(layout="wide")
-
-        if "gdf" not in st.session_state:
+        if "gdf" not in st.session_state or st.session_state.current_file != self.input_file:
             self.init_session_states()
 
-        self.col1, self.col2 = st.columns([0.6, 0.4])
+        self.col1, self.col2 = st.columns([0.75, 0.25])
         self.draw_data = None
 
         with self.col1:
-            st.title("Draw a Shape on the Map")
+            st.write("Draw a Shape on the Map")
             self.init_map()
             self.draw_data = st_folium(self.m, width=self.width_px, height=self.height_px)
 
@@ -48,15 +49,14 @@ class PopulationMapApp:
 
     def init_session_states(self):
         """
-        Initialise all the variables that will be kept throughout the session. This is only done once at the start, even though this code is run everytime Streamlit does anything.
+        Initialise all the variables that will be kept throughout the session. This is only done once at the start and when a new map is chosen.
         """
-        st.session_state.gdf = gpd.read_parquet(r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\population_density.parquet")
+        st.session_state.current_file = self.input_file
+        st.session_state.gdf = gpd.read_parquet(self.input_file)
 
         st.session_state.shape_counter = itertools.count(1)  # Persistent unique shape IDs
         st.session_state.polygon_populations = {}  # {shape_id: population}
         st.session_state.shape_map = {}  # {shape_key: shape_id}
-        st.session_state.highlighted_index = None
-
 
     def init_map(self):
         """
@@ -157,9 +157,4 @@ class PopulationMapApp:
             else:
                 shape_index = st.session_state.shape_map[shape_key]
                 self.valid_shape_indices.append(shape_index)
-
-
-
-if __name__ == "__main__":
-    PopulationMapApp()
 
