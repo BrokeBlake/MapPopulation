@@ -3,18 +3,6 @@ from generateMap import PopulationMapApp
 
 st.set_page_config(layout="wide")
 
-import os
-import streamlit as st
-
-st.write("Current Directory:", os.getcwd())
-st.write("Files in Root Directory:", os.listdir('.'))
-
-# Check if data/ParquetFiles exists
-if os.path.exists("data/ParquetFiles"):
-    st.write("ParquetFiles Directory Found! Files inside:", os.listdir("data/ParquetFiles"))
-else:
-    st.write("ParquetFiles Directory Not Found!")
-
 
 #Remove top padding, and change sidebar size
 st.markdown(
@@ -50,7 +38,7 @@ MAPS = {
         "lon_middle": 151.1093,
     },
     "Brisbane": {
-        "input_file": "data\ParquetFiles\brisbane_population_density.parquet",
+        "input_file": "data/ParquetFiles/brisbane_population_density.parquet",
         "lat_middle": -27.4705,
         "lon_middle": 153.0260,
     },

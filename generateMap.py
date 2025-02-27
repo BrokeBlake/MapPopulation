@@ -23,7 +23,7 @@ class PopulationMapApp:
                  zoom_level = 10,
                  width_px = 850,
                  height_px = 625,
-                 input_file = r"C:\Users\blake\OneDrive\Documents\GitHub\MapPopulation\data\ParquetFiles\melbourne_population_density.parquet"):
+                 input_file = "data\ParquetFiles\melbourne_population_density.parquet"):
         
         self.input_file = input_file
         self.lat_middle = lat_middle
