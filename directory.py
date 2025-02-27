@@ -23,17 +23,17 @@ st.markdown(
 
 MAPS = {
     "Melbourne": {
-        "input_file": "data\ParquetFiles\melbourne_population_density.parquet",
+        "input_file": "data/ParquetFiles/melbourne_population_density.parquet",
         "lat_middle": -37.8136,
         "lon_middle": 144.9631,
     },
     "Perth": {
-        "input_file": "data\ParquetFiles\perth_population_density.parquet",
+        "input_file": "data/ParquetFiles/perth_population_density.parquet",
         "lat_middle": -31.9514,
         "lon_middle": 115.9617,
     },
     "Sydney": {
-        "input_file": "data\ParquetFiles\sydney_population_density.parquet",
+        "input_file": "data/ParquetFiles/sydney_population_density.parquet",
         "lat_middle": -33.8688,
         "lon_middle": 151.1093,
     },
@@ -43,12 +43,12 @@ MAPS = {
         "lon_middle": 153.0260,
     },
     "Adelaide": {
-        "input_file": "data\ParquetFiles\adelaide_population_density.parquet",
+        "input_file": "data/ParquetFiles/adelaide_population_density.parquet",
         "lat_middle": -34.9285,
         "lon_middle": 138.6007,
     },
     "Auckland": {
-        "input_file": "data\ParquetFiles\auckland_population_density.parquet",
+        "input_file": "data/ParquetFiles/auckland_population_density.parquet",
         "lat_middle": -36.8509,
         "lon_middle": 174.7645,
     }
