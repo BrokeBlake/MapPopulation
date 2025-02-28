@@ -51,6 +51,22 @@ MAPS = {
         "input_file": "data/ParquetFiles/auckland_population_density.parquet",
         "lat_middle": -36.8509,
         "lon_middle": 174.7645,
+    },
+    "Tokyo": {
+        "input_file": "data/ParquetFiles/tokyo_population_density.parquet",
+        "zoom_level": 9,
+        "lat_middle": 35.6764,
+        "lon_middle": 139.7300,
+    },
+    "Osaka": {
+        "input_file": "data/ParquetFiles/osaka_population_density.parquet",
+        "lat_middle": 34.6937,
+        "lon_middle": 135.5023,
+    },
+    "Nagoya": {
+        "input_file": "data/ParquetFiles/nagoya_population_density.parquet",
+        "lat_middle": 35.1815,
+        "lon_middle": 136.9066,
     }
 }
 st.sidebar.header("Select a City:")
@@ -67,3 +83,8 @@ PopulationMapApp(
     lon_middle=MAPS[selected_city]["lon_middle"],
     zoom_level=MAPS[selected_city].get("zoom_level", 10)
 )
+
+st.write(f"Coordinates = ({MAPS[selected_city]['lon_middle']}, {MAPS[selected_city]['lat_middle']})")
+
+st.write("")
+st.write("Dataset: Schiavina, Marcello; Freire, Sergio; Alessandra Carioli; MacManus, Kytt (2023): GHS-POP R2023A - GHS population grid multitemporal (1975-2030). European Commission, Joint Research Centre (JRC) [Dataset] doi: 10.2905/2FF68A52-5B5B-4A22-8F40-C41DA8332CFE PID: http://data.europa.eu/89h/2ff68a52-5b5b-4a22-8f40-c41da8332cfe")

@@ -42,8 +42,7 @@ class PopulationMapApp:
             st.write("Draw a Shape on the Map")
             self.init_map()
             self.draw_data = st_folium(self.m, width=self.width_px, height=self.height_px)
-            st.write(f"Coordinates = ({self.lon_middle}, {self.lat_middle})")
-            st.write(f"Map Dimensions = {self.width_px} x {self.height_px}, Zoom Level = {self.zoom_level}")
+            #st.write(f"Map Dimensions = {self.width_px} x {self.height_px}, Zoom Level = {self.zoom_level}")
 
         self.update_shapes()
         #self.printHighlightedShape()
